@@ -1,0 +1,1 @@
+Don't know how everything worked so far, but the `1.0.0` release didn't contain the definition of `AWSCredentials` (because it was ignored by git). This fix returns it back.
