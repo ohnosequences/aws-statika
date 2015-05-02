@@ -1,0 +1,4 @@
+# 2.0.0-M1 release notes
+
+This is a first milestone towards 2.0.0, which drops typesets in favor of a more solid approach. 
+

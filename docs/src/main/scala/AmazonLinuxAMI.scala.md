@@ -1,3 +1,5 @@
+
+```scala
 package ohnosequences.statika.aws
 
 import ohnosequences.statika._, bundles._
@@ -6,10 +8,13 @@ import ohnosequences.awstools.regions.Region
 object amazonLinuxAMIs extends Module(amis, api) {
 
   import amis._, api._
+```
 
-  /*  Abtract class `AmazonLinuxAMI` provides parts of the user script as it's members, so that
-      one can extend it and redefine behaviour, of some part, reusing others.
-  */
+ Abtract class `AmazonLinuxAMI` provides parts of the user script as it's members, so that
+ one can extend it and redefine behaviour, of some part, reusing others.
+
+
+```scala
   abstract class AmazonLinuxAMI(
       val id: String,
       val amiVersion: String
@@ -19,10 +24,13 @@ object amazonLinuxAMIs extends Module(amis, api) {
     val arch: Architecture
     val javaHeap: Int // in G
     val workingDir: String
+```
 
-    /*  First of all, `initSetting` part sets up logging.
-        Then it sets useful environment variables.
-    */
+ First of all, `initSetting` part sets up logging.
+ Then it sets useful environment variables.
+
+
+```scala
     def initSetting: String = """
       |
       |# redirecting output for logging
@@ -51,10 +59,13 @@ object amazonLinuxAMIs extends Module(amis, api) {
         replace("$region$", s"${region}").
         replace("$tagOk$", tag(api.preparing)).
         replace("$tagFail$", tag(api.failure))
+```
 
-    /*  This part should make any necessary for building preparations,
-        like installing build tools: java-7 and scala-2.11.6 from rpm's
-    */
+ This part should make any necessary for building preparations,
+ like installing build tools: java-7 and scala-2.11.6 from rpm's
+
+
+```scala
     def preparing: String = """
       |aws s3 cp s3://resources.ohnosequences.com/java7-oracle.rpm java7-oracle.rpm
       |aws s3 cp s3://resources.ohnosequences.com/scala-2.11.6.rpm scala-2.11.6.rpm
@@ -62,8 +73,11 @@ object amazonLinuxAMIs extends Module(amis, api) {
       |alternatives --install /usr/bin/java java /usr/java/default/bin/java 99999
       |alternatives --auto java
       |""".stripMargin
+```
 
-    /* This is the main part of the script: building applicator. */
+This is the main part of the script: building applicator.
+
+```scala
     def building[B <: AnyBundle](
         bundle: B,
         metadata: AnyArtifactMetadata
@@ -82,13 +96,19 @@ object amazonLinuxAMIs extends Module(amis, api) {
       |
       |scalac -cp dist.jar apply.scala
       |""".stripMargin
+```
 
-    /* Just running what we built. */
+Just running what we built.
+
+```scala
     def applying: String = s"""
       |java -d${arch} -Xmx${javaHeap}G -cp .:dist.jar apply
       |""".stripMargin
+```
 
-    /* Instance status-tagging. */
+Instance status-tagging.
+
+```scala
     def tag(state: InstanceStatus): String = s"""
       |echo
       |echo " -- ${state} -- "
@@ -102,8 +122,11 @@ object amazonLinuxAMIs extends Module(amis, api) {
       |""".stripMargin.replaceAll("$state$", state)
 
     def fixLineEndings(s: String): String = s.replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n")
+```
 
-    /* Combining all parts to one script. */
+Combining all parts to one script.
+
+```scala
     def userScript[B <: AnyBundle, E >: ami.type <: AnyEnvironment](bundle: B)(implicit comp: E => Compatible[E, B]): String =
       
       fixLineEndings(
@@ -179,3 +202,26 @@ object amazonLinuxAMIs extends Module(amis, api) {
 
 // TODO: make it dependent on instance type and choose PV or HVM
 // See http://aws.amazon.com/amazon-linux-ami/instance-type-matrix/
+```
+
+
+------
+
+### Index
+
++ src
+  + test
+    + scala
+      + [amazonLinuxTests.scala][test/scala/amazonLinuxTests.scala]
+      + [AMITest.scala][test/scala/AMITest.scala]
+  + main
+    + scala
+      + [AmazonLinuxAMI.scala][main/scala/AmazonLinuxAMI.scala]
+      + [api.scala][main/scala/api.scala]
+      + [AMI.scala][main/scala/AMI.scala]
+
+[test/scala/amazonLinuxTests.scala]: ../../test/scala/amazonLinuxTests.scala.md
+[test/scala/AMITest.scala]: ../../test/scala/AMITest.scala.md
+[main/scala/AmazonLinuxAMI.scala]: AmazonLinuxAMI.scala.md
+[main/scala/api.scala]: api.scala.md
+[main/scala/AMI.scala]: AMI.scala.md
