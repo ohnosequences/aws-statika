@@ -13,25 +13,13 @@ import ohnosequences.statika._, bundles._, instructions._
 object amis extends Module(api) {
 
 
-  abstract class AnyAMI extends Environment() { ami =>
+  abstract class AnyAMI extends Environment { ami =>
 
     val id: String
     val amiVersion: String
-```
 
- This is the main purpose of having this image abstraction: to be able to generate a
- user-script for a particular bundle, using which can launch an instance or an
- auto-scaling group with this bundle being installed (what is called to _apply a bundle_).
- - it requires distribution metadata, because it needs to fill placeholders in the project of
-   the so called "bundle applicator" project;
- - the given bundle must be a member of the given distribution and must have all the
-   necessary implicits for being installed with it;
- - for info about credentials see the definition of `AWSCredentials` type;
+    // TODO why not put all the Java/Scala install here?
 
-
-```scala
-    def userScript[B <: AnyBundle, E >: ami.type <: AnyEnvironment]
-      (bundle: B)(implicit comp: E => Compatible[E, B]): String
 ```
 
 This method checks that the machine on which it's called has the corresponding image.
