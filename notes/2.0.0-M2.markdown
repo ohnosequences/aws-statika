@@ -1,0 +1,7 @@
+# 2.0.0-M2 release notes
+
+In this second milestone we have as most significant changes
+
+- #5 The default user script installs now Java 8
+- #8 A new method for getting instanceSpecs for a bundle, this together with the `userScript` method are now provided through ops requiring the corresponding `Compatible` instance.
+
