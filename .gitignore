@@ -23,7 +23,6 @@ artifacts/
 data/in/
 data/out/
 
-# credentials
-*Credentials*
-
-.tags
+.tags*
+.atom*
+.ensime*
