@@ -26,9 +26,9 @@ This method checks that the machine on which it's called has the corresponding i
 
 ```scala
     final def install: Results = {
-      
+
       try {
-        
+
         val amiId = io.Source.fromURL(api.metadataLocalAMIIdURL).mkString
 
         if (amiId == id)
@@ -38,10 +38,10 @@ This method checks that the machine on which it's called has the corresponding i
 
       } catch {
 
-        case ct: scala.util.control.ControlThrowable => 
+        case ct: scala.util.control.ControlThrowable =>
           throw ct
-        
-        case e:  Exception => 
+
+        case e:  Exception =>
           failure(s"Couldn't check AMI id because of ${e}")
       }
     }
@@ -55,28 +55,15 @@ A constructor for ami objects
   abstract class AMI(val id: String, val amiVersion: String) extends AnyAMI
 
   // no need to add a new trait here
+  type AnyAMICompatible = AnyCompatible { type Environment <: AnyAMI }
   type AMICompatible[E <: AnyAMI, B <: AnyBundle] = Compatible[E,B]
 }
+
 ```
 
 
-------
 
-### Index
 
-+ src
-  + test
-    + scala
-      + [amazonLinuxTests.scala][test/scala/amazonLinuxTests.scala]
-      + [AMITest.scala][test/scala/AMITest.scala]
-  + main
-    + scala
-      + [AmazonLinuxAMI.scala][main/scala/AmazonLinuxAMI.scala]
-      + [api.scala][main/scala/api.scala]
-      + [AMI.scala][main/scala/AMI.scala]
-
-[test/scala/amazonLinuxTests.scala]: ../../test/scala/amazonLinuxTests.scala.md
-[test/scala/AMITest.scala]: ../../test/scala/AMITest.scala.md
-[main/scala/AmazonLinuxAMI.scala]: AmazonLinuxAMI.scala.md
+[main/scala/amazonLinuxAMIs.scala]: amazonLinuxAMIs.scala.md
+[main/scala/amis.scala]: amis.scala.md
 [main/scala/api.scala]: api.scala.md
-[main/scala/AMI.scala]: AMI.scala.md
