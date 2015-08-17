@@ -1,0 +1,8 @@
+* Removed unneeded AMI ops provider
+* Fixed the messed up AMI ids
+* Updated aws-scala-tools dep to 0.13.2
+* Changed some namespaces to avoid conflicts with statika
+* Changed the way applicator works: using main instead of App
+* Added HVM/PV Amazon linux AMI ids
+* Fixed resolvers in the sbt plugins
+* Many fixes for the userScript
