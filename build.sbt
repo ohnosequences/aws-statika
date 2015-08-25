@@ -11,7 +11,7 @@ crossScalaVersions := Seq("2.10.5", scalaVersion.value)
 
 
 libraryDependencies ++= Seq(
-  "ohnosequences" %% "statika" 	       % "2.0.0-M3",
+  "ohnosequences" %% "statika" 	       % "2.0.0-new-instructions-SNAPSHOT",
   "ohnosequences" %% "aws-scala-tools" % "0.13.2",
   "org.scalatest" %% "scalatest"       % "2.2.5"     % Test
 )
