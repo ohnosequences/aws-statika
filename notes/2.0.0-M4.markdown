@@ -1,0 +1,2 @@
+* Updated statika version to 2.0-M4 and aws-scala-tools to 0.14
+* Fixes for the ami install and userscript launching code
