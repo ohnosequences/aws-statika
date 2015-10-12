@@ -87,15 +87,16 @@ object amazonLinuxAMIs extends Module(amis, api) {
 This is the main part of the script: building applicator.
 
 ```scala
+    // TODO: install directory should be configurable
     private def building[C <: AnyCompatible](comp: C): String = s"""
       |mkdir -p ${workingDir}
       |cd ${workingDir}
       |
       |echo "object apply { " > apply.scala
       |echo "  def main(args: Array[String]): Unit = {" >> apply.scala
-      |echo "    val results = ${comp.fullName}.install(ohnosequences.statika.instructions.failFast); " >> apply.scala
-      |echo "    results foreach println; " >> apply.scala
-      |echo "    if (results.hasFailures) sys.error(results.toString) " >> apply.scala
+      |echo "    val result = ${comp.fullName}.install; " >> apply.scala
+      |echo "    result.trace.foreach(println); " >> apply.scala
+      |echo "    if (result.hasFailures) sys.error(result.trace.toString) " >> apply.scala
       |echo "  }" >> apply.scala
       |echo "}" >> apply.scala
       |cat apply.scala
@@ -194,10 +195,10 @@ Just running what we built.
         case HVM => "ami-c90897be"
         case PV  => "ami-cf0897b8"
       }
-      // case Frankfurt          => virt match {
-      //   case HVM => "ami-b0221fad"
-      //   case PV  => "ami-b6221fab"
-      // }
+      case Frankfurt          => virt match {
+        case HVM => "ami-b4b0b7a9"
+        case PV  => "ami-b6b0b7ab"
+      }
       case Singapore          => virt match {
         case HVM => "ami-32d8e960"
         case PV  => "ami-1cd8e94e"
@@ -214,10 +215,10 @@ Just running what we built.
         case HVM => "ami-bd2890a0"
         case PV  => "ami-bf2890a2"
       }
-      // case Beijin             => virt match {
-      //   case HVM => "ami-f639abcf"
-      //   case PV  => "ami-f439abcd"
-      // }
+      case Beijing            => virt match {
+        case HVM => "ami-44c4587d"
+        case PV  => "ami-46c4587f"
+      }
       case GovCloud           => virt match {
         case HVM => "ami-7db2d35e"
         case PV  => "ami-75b2d356"

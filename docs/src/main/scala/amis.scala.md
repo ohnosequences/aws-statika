@@ -8,7 +8,9 @@ to control, that all the members are installed with the same image.
 ```scala
 package ohnosequences.statika.aws
 
-import ohnosequences.statika._, bundles._, instructions._
+import ohnosequences.statika._, bundles._, instructions._, results._
+import scala.util.Try
+import java.net.URL
 
 object amis extends Module(api) {
 
@@ -25,25 +27,11 @@ object amis extends Module(api) {
 This method checks that the machine on which it's called has the corresponding image.
 
 ```scala
-    final def install: Results = {
-
-      try {
-
-        val amiId = io.Source.fromURL(api.metadataLocalAMIIdURL).mkString
-
-        if (amiId == id)
-          success(s"Checked that the Amazon Machine Image id is ${id}")
-        else
-          failure(s"AMI should be ${id}. Found ${amiId}")
-
-      } catch {
-
-        case ct: scala.util.control.ControlThrowable =>
-          throw ct
-
-        case e:  Exception =>
-          failure(s"Couldn't check AMI id because of ${e}")
-      }
+    def instructions: AnyInstructions = LazyTry[Unit] {
+      println("FOOOO")
+      val amiId = io.Source.fromURL(new URL(api.metadataLocalURL, "ami-id")).mkString
+      if (amiId == id) Success(s"Checked that the Amazon Machine Image id is ${id}", ())
+      else Failure(s"AMI should be ${id}. Found ${amiId}")
     }
 
   }
