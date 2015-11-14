@@ -1,0 +1,1 @@
+This is a milestone release for 2.0.0. Mostly updated dependencies, using new API from aws-scala-tools.
