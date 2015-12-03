@@ -1,0 +1,1 @@
+This is a milestone release for 2.0.0. Updated to the stable aws-scala-tools 0.15.0.
