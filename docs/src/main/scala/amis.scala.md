@@ -175,16 +175,13 @@ case class LinuxAMICompSyntax[C <: AnyLinuxAMICompatible](val comp: C) {
     instanceMonitoring: Boolean = false,
     deviceMapping: Map[String, String] = Map[String, String]()
   )(implicit
-    supportsStorage: IT SupportsStorageType AMI#Storage,
-    supportsVirt:    IT SupportsVirtualization AMI#Virt
+    supportsAMI: IT SupportsAMI AMI
   ): LaunchSpecs[InstanceSpecs[AMI, IT]] =
     LaunchSpecs(
       InstanceSpecs[AMI, IT](
         comp.environment.ami,
         instanceType
-      )(supportsStorage,
-        supportsVirt
-      )
+      )(supportsAMI)
     )(keyPair,
       userScript,
       instanceProfile,
@@ -211,5 +208,5 @@ case object foo {
 
 
 
-[main/scala/package.scala]: package.scala.md
 [main/scala/amis.scala]: amis.scala.md
+[main/scala/package.scala]: package.scala.md

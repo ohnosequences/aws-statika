@@ -19,5 +19,5 @@ package object aws {
 
 
 
-[main/scala/package.scala]: package.scala.md
 [main/scala/amis.scala]: amis.scala.md
+[main/scala/package.scala]: package.scala.md
