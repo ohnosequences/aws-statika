@@ -174,7 +174,7 @@ case class LinuxAMICompSyntax[C <: AnyLinuxAMICompatible](val comp: C) {
 
 case class amznAMIEnv[A <: AnyAmazonLinuxAMI](
   amazonAMI: A,
-  scalaVersion: String = "2.11.11",
+  scalaVersion: String = "2.12.3",
   workingDir: File = new File("/media/ephemeral0/"),
   javaHeap: Int = 1, // in G
   javaOptions: Seq[String] = Seq()
