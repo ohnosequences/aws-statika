@@ -7,9 +7,9 @@ to control, that all the members are installed with the same image.
 
 package ohnosequences.statika.aws
 
-import ohnosequences.statika._, bundles._, instructions._, results._
+import ohnosequences.statika._
 import ohnosequences.awstools._, ec2._
-import java.net.URL
+import java.io.File
 
 abstract class AnyLinuxAMIEnvironment extends Environment {
 
@@ -18,8 +18,8 @@ abstract class AnyLinuxAMIEnvironment extends Environment {
 
   /* This method checks that the machine on which it's called has the corresponding image. */
   def instructions: AnyInstructions = LazyTry[Unit] {
-    val amiId = io.Source.fromURL(new URL(ec2.metadataLocalURL, "ami-id")).mkString
-    if (amiId == ami.id) Success(s"Checked that the Amazon Machine Image id is ${ami.id}", ())
+    val amiId = getLocalMetadata("ami-id")
+    if (amiId == util.Success(ami.id)) Success(s"Checked that the Amazon Machine Image id is ${ami.id}", ())
     else Failure(s"AMI should be ${ami.id}. Found ${amiId}")
   }
 
@@ -47,21 +47,20 @@ abstract class LinuxAMIEnvironment[
 
   type AMI = A
 
+  val scalaVersion: String
+
   val javaHeap: Int // in G
-  val workingDir: String
+  val javaOptions: Seq[String]
+  val workingDir: File
+
+  val logFile: Option[File]
+
+  def logRedirect: String = logFile.map { file => s"exec &> ${file.getAbsolutePath}" }.getOrElse("")
 
   /*  First of all, `initSetting` part sets up logging.
       Then it sets useful environment variables.
   */
-  private def initSetting: String = s"""
-    |
-    |# redirecting output for logging
-    |exec &> /log.txt
-    |
-    |echo "tail -f /log.txt" > /bin/show-log
-    |chmod a+r /log.txt
-    |chmod a+x /bin/show-log
-    |ln -s /log.txt /root/log.txt
+  private def initSetting: String = logRedirect ++ s"""
     |
     |function tagStep(){
     |  if [ $$1 = 0 ]; then
@@ -89,12 +88,12 @@ abstract class LinuxAMIEnvironment[
   private def tagStep(state: InstanceStatus): String = s"tagStep $$? ${state}"
 
   /*  This part should make any necessary for building preparations,
-      like installing build tools: java-7 and scala-2.11.7 from rpm's
+      like installing build tools: java-8 and scala from rpm's
   */
   private def preparing: String = s"""
-    |aws s3 cp --region ${ami.region} s3://resources.ohnosequences.com/scala/scala-2.11.7.rpm scala-2.11.7.rpm
+    |aws s3 cp --region ${ami.region} s3://resources.ohnosequences.com/scala/scala-${scalaVersion}.rpm scala-${scalaVersion}.rpm
     |yum -y remove java-1.7.0-openjdk
-    |yum -y install java-1.8.0-openjdk scala-2.11.7.rpm
+    |yum -y install java-1.8.0-openjdk scala-${scalaVersion}.rpm
     |""".stripMargin
 
   /* This is the main part of the script: building applicator. */
@@ -122,7 +121,7 @@ abstract class LinuxAMIEnvironment[
 
   /* Just running what we built. */
   private def applying: String = s"""
-    |java -d${ami.arch.wordSize} -Xmx${javaHeap}G -cp .:dist.jar apply
+    |java -d${ami.arch.wordSize} -Xmx${javaHeap}G ${javaOptions.mkString(" ")} -cp .:dist.jar apply
     |""".stripMargin
 
   private def fixLineEndings(s: String): String = s.replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n")
@@ -145,41 +144,41 @@ case class LinuxAMICompSyntax[C <: AnyLinuxAMICompatible](val comp: C) {
 
   def userScript: String = comp.environment.userScript(comp)
 
-  type AMI = C#Environment#AMI
+  // type AMI = C#Environment#AMI
+  type AMI = comp.environment.AMI
 
   def instanceSpecs[
     IT <: AnyInstanceType
   ](instanceType: IT,
     keyPair: String,
     instanceProfile: Option[String],
-    securityGroups: List[String] = List(),
+    securityGroups: Set[String] = Set(),
     instanceMonitoring: Boolean = false,
     deviceMapping: Map[String, String] = Map[String, String]()
   )(implicit
     supportsAMI: IT SupportsAMI AMI
-  ): LaunchSpecs[InstanceSpecs[AMI, IT]] =
+  ): LaunchSpecs[IT, AMI] =
     LaunchSpecs(
-      InstanceSpecs[AMI, IT](
-        comp.environment.ami,
-        instanceType
-      )(supportsAMI)
-    )(keyPair,
+      comp.environment.ami,
+      instanceType,
+      keyPair,
       userScript,
       instanceProfile,
-      securityGroups,
       instanceMonitoring,
+      securityGroups,
       deviceMapping
-    )
+    )(supportsAMI)
 
 }
 
 
 case class amznAMIEnv[A <: AnyAmazonLinuxAMI](
   amazonAMI: A,
+  scalaVersion: String = "2.11.11",
+  workingDir: File = new File("/media/ephemeral0/"),
   javaHeap: Int = 1, // in G
-  workingDir: String = "/media/ephemeral0/"
-) extends LinuxAMIEnvironment[A](amazonAMI)
+  javaOptions: Seq[String] = Seq()
+) extends LinuxAMIEnvironment[A](amazonAMI) {
 
-case object foo {
-  val d = amznAMIEnv(AmazonLinuxAMI(regions.Region.Ireland, PV, InstanceStore))
+  val logFile = Some(new File("/log.txt"))
 }
