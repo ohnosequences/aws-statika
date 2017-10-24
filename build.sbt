@@ -9,6 +9,6 @@ scalaVersion  := crossScalaVersions.value.last
 
 libraryDependencies ++= Seq(
   "ohnosequences" %% "statika" 	       % "3.0.0",
-  "ohnosequences" %% "aws-scala-tools" % "0.19.0",
+  "ohnosequences" %% "aws-scala-tools" % "0.20.0",
   "org.scalatest" %% "scalatest"       % "3.0.4" % Test
 )
