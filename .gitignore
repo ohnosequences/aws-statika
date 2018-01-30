@@ -26,3 +26,4 @@ data/out/
 .tags*
 .atom*
 .ensime*
+.metals*
